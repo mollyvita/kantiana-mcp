@@ -20,7 +20,8 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 function authorized(request: Request, url: URL, env: Env): boolean {
-  if (!env.MCP_AUTH_TOKEN) return true;
+  // Without a token only local `wrangler dev` is allowed: the server acts as the student.
+  if (!env.MCP_AUTH_TOKEN) return url.hostname === "localhost" || url.hostname === "127.0.0.1";
   const bearer = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   return bearer === env.MCP_AUTH_TOKEN || url.searchParams.get("key") === env.MCP_AUTH_TOKEN;
 }
