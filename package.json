@@ -1,0 +1,22 @@
+{
+  "name": "kantiana-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server for BFU Kantiana (lk.kantiana.ru + eios Moodle) on Cloudflare Workers",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "kantiana-api": "github:mollyvita/kantiana-api#devin/1794871265-initial-client",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261116.1",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.105.0"
+  }
+}

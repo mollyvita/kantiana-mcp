@@ -1,0 +1,8 @@
+name = "kantiana-mcp"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Secrets (wrangler secret put ...):
+#   LK_LOGIN, LK_PASSWORD  — lk.kantiana.ru credentials used for auto-login
+#   MCP_AUTH_TOKEN         — optional; if set, clients must send `Authorization: Bearer <token>`
