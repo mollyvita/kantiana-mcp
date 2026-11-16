@@ -19,25 +19,23 @@ It runs as a stateless Cloudflare Worker using Streamable HTTP. The API client i
 | Communication | `get_conversations`, `get_messages`, `send_message`, `get_notifications`, `get_forum_discussions`, `get_discussion_posts` |
 | Escape hatch | `moodle_call` |
 
-If the `LK_LOGIN` and `LK_PASSWORD` secrets are not set, the server also exposes a `login` tool.
-
 ## Deploy
 
 ```bash
 npm install
 npx wrangler secret put LK_LOGIN        # e.g. ivanov or ivanov@stud.kantiana.ru
 npx wrangler secret put LK_PASSWORD
-npx wrangler secret put MCP_AUTH_TOKEN  # strongly recommended: the server acts as you
+npx wrangler secret put MCP_AUTH_TOKEN  # required: the server acts as you
 npm run deploy
 ```
 
-Connect your MCP client to `https://kantiana-mcp.<subdomain>.workers.dev/mcp`. When `MCP_AUTH_TOKEN` is set, the client must send `Authorization: Bearer <token>`. Clients that can't set headers can append `?key=<token>` to the URL instead.
+Connect your MCP client to `https://kantiana-mcp.<subdomain>.workers.dev/mcp`. The client must send `Authorization: Bearer <token>`. Clients that can't set headers can append `?key=<token>` to the URL instead.
 
 ## Local development
 
 ```bash
 printf 'LK_LOGIN=...\nLK_PASSWORD=...\n' > .dev.vars
-npm run dev   # http://localhost:8787/mcp
+npm run dev   # http://localhost:8787/mcp (no auth token needed on localhost)
 ```
 
 Wrangler 4 requires Node 22 or newer.

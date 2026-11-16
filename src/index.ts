@@ -41,7 +41,7 @@ export default {
 
       const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined });
       const server = new McpServer({ name: "kantiana-mcp", version: "0.1.0" });
-      registerTools(server, new ClientProvider(env), { hasSecrets: Boolean(env.LK_LOGIN && env.LK_PASSWORD) });
+      registerTools(server, new ClientProvider(env));
       await server.connect(transport);
 
       const response = await transport.handleRequest(request);

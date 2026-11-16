@@ -14,7 +14,6 @@ let cached: { session: KantianaSession; at: number; login: string } | null = nul
 /** Holds a lazily-authenticated client for one MCP request. */
 export class ClientProvider {
   private client: KantianaClient | null = null;
-  private loginCreds: { login: string; password: string } | null = null;
 
   constructor(private readonly env: Env) {}
 
@@ -32,17 +31,9 @@ export class ClientProvider {
     return client;
   }
 
-  /** Logs in with explicit credentials (when no secrets are configured). */
-  async login(login: string, password: string): Promise<void> {
-    const client = new KantianaClient();
-    await client.login(login, password);
-    this.client = client;
-    this.loginCreds = { login, password };
-  }
-
   async lk(): Promise<KantianaClient["lk"]> {
     const c = await this.base();
-    if (!c.lk.isAuthenticated) throw new Error("Not logged in. Configure LK_LOGIN/LK_PASSWORD secrets or call the `login` tool.");
+    if (!c.lk.isAuthenticated) throw new Error("Not logged in. Configure the LK_LOGIN/LK_PASSWORD Worker secrets.");
     return c.lk;
   }
 
@@ -60,9 +51,8 @@ export class ClientProvider {
     const c = await this.base();
     if (!c.lms.isAuthenticated) {
       const { LK_LOGIN, LK_PASSWORD } = this.env;
-      if (this.loginCreds) await c.lms.loginWithPassword(normalizeLogin(this.loginCreds.login), this.loginCreds.password);
-      else if (LK_LOGIN && LK_PASSWORD) await c.lms.loginWithPassword(normalizeLogin(LK_LOGIN), LK_PASSWORD);
-      else throw new Error("Not logged in. Configure LK_LOGIN/LK_PASSWORD secrets or call the `login` tool.");
+      if (LK_LOGIN && LK_PASSWORD) await c.lms.loginWithPassword(normalizeLogin(LK_LOGIN), LK_PASSWORD);
+      else throw new Error("Not logged in. Configure the LK_LOGIN/LK_PASSWORD Worker secrets.");
       this.save();
     }
     return c.lms;

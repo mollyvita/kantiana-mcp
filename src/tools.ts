@@ -33,7 +33,7 @@ function summarizeContents(sections: MoodleSection[]): string {
     .join("\n\n");
 }
 
-export function registerTools(server: McpServer, clients: ClientProvider, opts: { hasSecrets: boolean }) {
+export function registerTools(server: McpServer, clients: ClientProvider) {
   const safe =
     <A,>(fn: (args: A) => Promise<ReturnType<typeof text>>) =>
     async (args: A) => {
@@ -45,18 +45,6 @@ export function registerTools(server: McpServer, clients: ClientProvider, opts: 
         return { ...text(`Error: ${msg}`), isError: true };
       }
     };
-
-  if (!opts.hasSecrets) {
-    server.tool(
-      "login",
-      "Log into lk.kantiana.ru for this request (only needed when the server has no LK_LOGIN/LK_PASSWORD secrets).",
-      { login: z.string().describe("Login, e.g. ivanov or ivanov@stud.kantiana.ru"), password: z.string() },
-      safe(async ({ login, password }) => {
-        await clients.login(login, password);
-        return text("Logged in.");
-      }),
-    );
-  }
 
   // ---------- lk.kantiana.ru ----------
 
