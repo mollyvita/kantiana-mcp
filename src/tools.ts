@@ -183,8 +183,30 @@ export function registerTools(server: McpServer, clients: ClientProvider) {
       const res = await m.download(url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const mime = (res.headers.get("content-type") ?? "application/octet-stream").split(";")[0];
-      const buf = new Uint8Array(await res.arrayBuffer());
-      if (buf.byteLength > MAX_INLINE_BYTES) throw new Error(`File is ${Math.round(buf.byteLength / 1024 / 1024)} MB; too large to return inline.`);
+      const tooLarge = () => new Error(`File is larger than ${MAX_INLINE_BYTES / 1024 / 1024} MB; too large to return inline.`);
+      if (Number(res.headers.get("content-length") ?? 0) > MAX_INLINE_BYTES) {
+        await res.body?.cancel();
+        throw tooLarge();
+      }
+      const chunks: Uint8Array[] = [];
+      let size = 0;
+      const reader = res.body!.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        if (size > MAX_INLINE_BYTES) {
+          await reader.cancel();
+          throw tooLarge();
+        }
+        chunks.push(value);
+      }
+      const buf = new Uint8Array(size);
+      let off = 0;
+      for (const c of chunks) {
+        buf.set(c, off);
+        off += c.byteLength;
+      }
       if (mime.startsWith("text/") || mime === "application/json") return text(new TextDecoder().decode(buf));
       let bin = "";
       for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
