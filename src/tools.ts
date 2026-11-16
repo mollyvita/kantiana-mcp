@@ -245,6 +245,9 @@ export function registerTools(server: McpServer, clients: ClientProvider) {
         itemid = await m.uploadFile(f.filename, bytes, itemid ?? 0);
       }
       const saved = await m.saveSubmission(assign_id, { text: body, fileItemId: itemid });
+      if (Array.isArray(saved) && saved.length > 0) {
+        throw new Error(`Moodle rejected the submission: ${saved.map((w: { message?: string }) => w.message).join("; ")}`);
+      }
       const submitted = submit_for_grading ? await m.submitForGrading(assign_id) : undefined;
       return json({ saved, submitted });
     }),
