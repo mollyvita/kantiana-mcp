@@ -5,6 +5,7 @@ import type { ClientProvider } from "./session.js";
 import { formatDate, formatSchedule, json, stripHtml, text } from "./format.js";
 
 const MAX_INLINE_BYTES = 5 * 1024 * 1024;
+const AUTH_ERROR_CODES = new Set(["invalidtoken", "servicerequireslogin", "requireloginerror", "invalidsesskey"]);
 
 const dateArg = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().describe("Start date YYYY-MM-DD (default: today)");
 const daysArg = z.number().int().min(1).max(31).default(1).describe("Number of consecutive days");
@@ -41,7 +42,8 @@ export function registerTools(server: McpServer, clients: ClientProvider) {
         return await fn(args);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        if (/401|not authenticated|invalidtoken|session/i.test(msg)) clients.reset();
+        const { status, code } = (e ?? {}) as { status?: number; code?: string };
+        if (status === 401 || AUTH_ERROR_CODES.has(code ?? "") || /not authenticated|invalid token|session/i.test(msg)) clients.reset();
         return { ...text(`Error: ${msg}`), isError: true };
       }
     };
