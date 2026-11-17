@@ -2,7 +2,7 @@
   "name": "kantiana-mcp",
   "version": "0.1.0",
   "private": true,
-  "description": "MCP server for BFU Kantiana (lk.kantiana.ru + eios Moodle) on Cloudflare Workers",
+  "description": "MCP server for BFU Kantiana lk.kantiana.ru on Cloudflare Workers",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",

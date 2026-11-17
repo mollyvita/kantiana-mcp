@@ -1,4 +1,4 @@
-import { KantianaClient, normalizeLogin, type KantianaSession } from "kantiana-api";
+import { KantianaClient, type KantianaSession } from "kantiana-api";
 
 export interface Env {
   LK_LOGIN?: string;
@@ -35,27 +35,6 @@ export class ClientProvider {
     const c = await this.base();
     if (!c.lk.isAuthenticated) throw new Error("Not logged in. Configure the LK_LOGIN/LK_PASSWORD Worker secrets.");
     return c.lk;
-  }
-
-  async eios(): Promise<KantianaClient["eios"]> {
-    const c = await this.base();
-    if (!c.eios.isAuthenticated) {
-      await this.lk();
-      await c.connectEios();
-      this.save();
-    }
-    return c.eios;
-  }
-
-  async lms(): Promise<KantianaClient["lms"]> {
-    const c = await this.base();
-    if (!c.lms.isAuthenticated) {
-      const { LK_LOGIN, LK_PASSWORD } = this.env;
-      if (LK_LOGIN && LK_PASSWORD) await c.lms.loginWithPassword(normalizeLogin(LK_LOGIN), LK_PASSWORD);
-      else throw new Error("Not logged in. Configure the LK_LOGIN/LK_PASSWORD Worker secrets.");
-      this.save();
-    }
-    return c.lms;
   }
 
   /** Drops cached auth so the next call re-authenticates (e.g. after the LK cookie expired). */

@@ -1,23 +1,18 @@
 # kantiana-mcp
 
-An [MCP](https://modelcontextprotocol.io) server for the BFU Kantiana university systems:
+An [MCP](https://modelcontextprotocol.io) server for **lk.kantiana.ru** (BFU Kantiana personal account):
 
-- **lk.kantiana.ru**: profile, schedules (personal, group and teacher), notices, news
-- **eios.kantiana.ru** (Moodle, where the courses live): courses, materials and files, assignments and submissions, grades, deadlines, calendar, messages, notifications, forums, quizzes and activity completion, plus `moodle_call`, which calls any of the ~440 Moodle web-service functions directly
-- **lms.kantiana.ru**: the same Moodle tools with `site: "lms"`
+- profile, schedules (personal, group and teacher), notices, news, linked services
 
 It runs as a stateless Cloudflare Worker using Streamable HTTP. The API client is [kantiana-api](https://github.com/mollyvita/kantiana-api).
+
+> The Moodle tools (eios/lms.kantiana.ru) were removed: those hosts block Cloudflare Worker egress at the network level, so calls failed with `Network connection lost`.
 
 ## Tools
 
 | Area | Tools |
 | --- | --- |
 | LK | `get_profile`, `get_schedule`, `search_groups`, `get_group_schedule`, `search_teachers`, `get_teacher_schedule`, `get_notices`, `dismiss_notice`, `get_news`, `get_services` |
-| Courses | `list_courses`, `get_course_contents`, `download_file`, `mark_activity_complete` |
-| Assignments | `get_assignments`, `get_submission_status`, `submit_assignment` |
-| Progress | `get_grades`, `get_deadlines`, `get_calendar`, `get_quizzes` |
-| Communication | `get_conversations`, `get_messages`, `send_message`, `get_notifications`, `get_forum_discussions`, `get_discussion_posts` |
-| Escape hatch | `moodle_call` |
 
 ## Deploy
 
@@ -42,5 +37,4 @@ Wrangler 4 requires Node 22 or newer.
 
 ## Notes
 
-- Each Worker isolate caches the LK cookies and Moodle token for one hour, so the SSO flow doesn't run on every request. When an error looks like an auth problem, the cache is dropped and the next call logs in again.
-- `download_file` only accepts URLs on the selected Moodle host, so the token never leaves it.
+- Each Worker isolate caches the LK cookies for one hour, so the login flow doesn't run on every request. When an error looks like an auth problem, the cache is dropped and the next call logs in again.
